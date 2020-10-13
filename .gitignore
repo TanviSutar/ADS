@@ -1,3 +1,14 @@
-.practice .practice2
-practice.cpp practice2.cpp
-.out
+ADS-implememtation/practice.cpp
+ADS-implememtation/practice2.cpp
+ADS-implememtation/practice3.cpp
+ADS-implememtation/practice4.cpp
+ADS-implememtation/practice.py
+ADS-implememtation/practice3.py
+ADS-implememtation/practice2.py
+PS-solutions/practice.cpp
+PS-solutions/practice2.cpp
+PS-solutions/practice3.cpp
+PS-solutions/practice.py
+PS-solutions/practice2.py
+*.out
+
