@@ -1,15 +1,11 @@
-ADS-implememtation/practice.cpp
-ADS-implememtation/practice2.cpp
-ADS-implememtation/practice3.cpp
-ADS-implememtation/practice4.cpp
-ADS-implememtation/practice.py
-ADS-implememtation/practice3.py
-ADS-implememtation/practice2.py
-prac.py
-PS-solutions/practice.cpp
-PS-solutions/practice2.cpp
-PS-solutions/practice3.cpp
-PS-solutions/practice.py
-PS-solutions/practice2.py
-*.out
+
+/*/practice.cpp
+/*/practice2.cpp
+/*/practice3.cpp
+/*/practice4.cpp
+/*/practice.py
+/*/practice3.py
+/*/practice2.py
+/*/prac.py
+/*/*.out
 
