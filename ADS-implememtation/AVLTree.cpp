@@ -6,84 +6,96 @@ using namespace std;
 class node{
     public:
         int val;
-        int hleft;
-        int hright;
-        node *left;
-        node *right;
-        node(){
-            hright = 0;
-            hleft = 0;
-            left = NULL;
-            right = NULL;
+        int height;
+        node* left;
+        node* right;
+        node(int val,int hgt){
+            this->val = val;
+            this->height = hgt;
+            this->left = NULL;
+            this->right = NULL;
         }
 };
 
-node* insert(node *root,int val){
-    if(root == NULL){
-        node *n = new node();
-        n->val = val;
-        return n;
-    }
-    if(root->val == val){
-        return root;
-    }
+int height(node* root){
+    if(root == NULL) return 0;
+    return root->height;
+}
+
+node* rightRotate(node* root){
+    node* r = root;
+    root = root->left;
+    r->left = root->right;
+    root->right = r;
+    r->height = max(height(r->left),height(r->right))+1;
+    root->height = max(height(root->left),height(root->right))+1;
+    return root;
+
+    /* node newroot = root->left;
+    root->left = newroot->right;
+    newroot->right = root;
+    root->height = max(height(root->left),height(root->right))+1;
+    newroot->height = max(height(newroot->left),height(newroot->right))+1;
+    return newroot; */
+}
+
+node* leftRotate(node* root){
     node *r = root;
-    if(root->val > val){//inserting into left subtree
-        root->left = insert(root->left,val);
-        root->hleft = max(root->left->hleft,root->left->hright)+1;
-        if(abs(root->hleft-root->hright) > 1){
-            //decide whether it is ll imbalanced or lr imbalanced
-            if(root->left->hleft > root->left->hright){//ll-imbalanced
-                root = root->left;
-                r->left = root->right;
-                root->right = r;
-            }
-            else{//lr-imbalanced
-                root = root->left->right;
-                r->left->right = root->left;
-                root->left = r->left;
-                r->left = root->right;
-                root->right = r;
-            }
-            r->hleft = max(r->left->hleft,r->left->hright)+1;
-            if(r->right == NULL) r->hright = 0;
-            else r->hright = max(r->right->hleft,r->right->hright)+1;
-            root->hleft = max(root->left->hleft,root->left->hright)+1;
-            root->hright = max(root->right->hleft,root->right->hright)+1;
-        } 
-    }
-    else{//inserting into right subtree
-        root->right = insert(root->right,val);
-        root->hright = max(root->right->hleft,root->right->hright)+1;
-        if(abs(root->hleft-root->hright) > 1){
-            //decide whether it is ll imbalanced or lr imbalanced
-            if(root->right->hright > root->right->hleft){//rr-imbalanced
-                root = root->right;
-                r->right = root->left;
-                root->left = r;
-            }
-            else{//rl-imbalanced
-                root = root->right->left;
-                r->right->left = root->right;
-                root->right = r->right;
-                r->right = root->left;
-                root->left = r;
-            }
-            if(r->left == NULL) r->hleft = 0;
-            else r->hleft = max(r->left->hleft,r->left->hright)+1;
-            r->hright = max(r->right->hleft,r->right->hright)+1;
-            root->hleft = max(root->left->hleft,root->left->hright)+1;
-            root->hright = max(root->right->hleft,root->right->hright)+1;
+    root = root->right;
+    r->right = root->left;
+    root->left = r;
+    r->height = max(height(r->left),height(r->right))+1;
+    root->height = max(height(root->left),height(root->right))+1;
+    return root;
+
+    /* node *newroot = root->right;
+    root->right = newroot->left;
+    newroot->left = root;
+    root->height = max(height(root->left),height(root->right))+1;
+    root->height = max(height(newroot->left),height(newroot->right))+1;
+    return newroot; */
+}
+
+int balancefactor(node* root){
+    if(root == NULL) return 0;
+    if(root->left == NULL and root->right == NULL) return 0;
+    if(root->left == NULL) return root->right->height+1;
+    if(root->right == NULL) return root->left->height+1;
+    return abs(root->right->height - root->left->height); 
+}
+
+node* insert(node* root,int val){
+    if(root == NULL) return new node(val,0);
+
+    if(root->val == val) return root;
+    if(root->val > val) root->left =  insert(root->left,val);
+    else root->right = insert(root->right,val);
+
+    root->height = max(height(root->left),height(root->right))+1;
+    //cout<<root->height<<endl;
+
+    if(balancefactor(root) > 1){
+        if(root->left and val <= root->left->val)//ll imbalanced
+            root = rightRotate(root);
+        else if(root->right and val >= root->right->val)//rr imbalanced
+            root = leftRotate(root);
+        else if(root->left and val >= root->left->val){//lr imbalanced
+            root->left = leftRotate(root->left);
+            root = rightRotate(root);
+        }
+        else if(root->right and val <= root->right->val){//rl imbalanced
+            root->right = rightRotate(root->right);
+            root = leftRotate(root);
         }
     }
     return root;
 }
 
-void inorder(node *root){
+void preorder(node *root){
     if(root == NULL) return;
-    inorder(root->left);
     cout<<root->val<<" ";
-    inorder(root->right);
+    preorder(root->left);
+    preorder(root->right);
 }
 
 int main(){
@@ -94,9 +106,10 @@ int main(){
         cin>>ch;
         if(ch == -1) break;
         root = insert(root,ch);
+        //cout<<root->val<<endl;
     }
-    inorder(root);
+    cout<<"\nPreorder traversal: ";
+    preorder(root);
     cout<<endl;
-    cout<<root->val<<" "<<root->hleft<<" "<<root->hright<<endl;
     return 0;
 }
