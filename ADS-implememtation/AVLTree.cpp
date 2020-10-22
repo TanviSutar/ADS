@@ -1,28 +1,33 @@
 #include<iostream>
-#include<algorithm>
 #include<cstdlib>
+#include<algorithm>
 using namespace std;
 
 class node{
     public:
         int val;
-        int height;
         node* left;
         node* right;
-        node(int val,int hgt){
+        int height;
+        node(int val){
             this->val = val;
-            this->height = hgt;
             this->left = NULL;
             this->right = NULL;
+            this->height = 1;
         }
 };
 
-int height(node* root){
+int height(node *root){
     if(root == NULL) return 0;
     return root->height;
 }
 
-node* rightRotate(node* root){
+int balanceFactor(node *root){
+    if(root == NULL) return 0;
+    return height(root->left)-height(root->right);
+}
+
+node* rightRotate(node *root){
     node* r = root;
     root = root->left;
     r->left = root->right;
@@ -30,16 +35,9 @@ node* rightRotate(node* root){
     r->height = max(height(r->left),height(r->right))+1;
     root->height = max(height(root->left),height(root->right))+1;
     return root;
-
-    /* node newroot = root->left;
-    root->left = newroot->right;
-    newroot->right = root;
-    root->height = max(height(root->left),height(root->right))+1;
-    newroot->height = max(height(newroot->left),height(newroot->right))+1;
-    return newroot; */
 }
 
-node* leftRotate(node* root){
+node* leftRotate(node *root){
     node *r = root;
     root = root->right;
     r->right = root->left;
@@ -47,46 +45,81 @@ node* leftRotate(node* root){
     r->height = max(height(r->left),height(r->right))+1;
     root->height = max(height(root->left),height(root->right))+1;
     return root;
-
-    /* node *newroot = root->right;
-    root->right = newroot->left;
-    newroot->left = root;
-    root->height = max(height(root->left),height(root->right))+1;
-    root->height = max(height(newroot->left),height(newroot->right))+1;
-    return newroot; */
 }
 
-int balancefactor(node* root){
-    if(root == NULL) return 0;
-    if(root->left == NULL and root->right == NULL) return 0;
-    if(root->left == NULL) return root->right->height+1;
-    if(root->right == NULL) return root->left->height+1;
-    return abs(root->right->height - root->left->height); 
-}
-
-node* insert(node* root,int val){
-    if(root == NULL) return new node(val,0);
+node* insert(node *root,int val){
+    if(root == NULL) return new node(val);
 
     if(root->val == val) return root;
-    if(root->val > val) root->left =  insert(root->left,val);
-    else root->right = insert(root->right,val);
+    else if(root->val > val)
+        root->left = insert(root->left,val);
+    else 
+        root->right = insert(root->right,val);
+
+    root->height = max(height(root->right),height(root->left))+1;
+
+    int bf = balanceFactor(root);
+
+    if(bf > 1 and val < root->left->val){//ll imbalance
+        root = rightRotate(root);
+    }
+    else if(bf < -1 and val > root->right->val){//rr imbalance
+        root = leftRotate(root);
+    }
+    else if(bf > 1 and val > root->left->val){//lr imbalance
+        root->left = leftRotate(root->left);
+        root = rightRotate(root);
+    }
+    else if(bf < -1 and val < root->right->val){//rl imbalance
+        root->right = rightRotate(root->right);
+        root = leftRotate(root);
+    }
+
+    return root;
+}
+
+node* mydelete(node *root,int val){
+    if(root == NULL) return NULL;
+    if(root->val > val)
+        root->left = mydelete(root->left,val);
+    else if(root->val < val)
+        root->right = mydelete(root->right,val);
+    else{
+        if(root->left == NULL and root->right == NULL) return NULL;
+        else if(root->right == NULL) root = root->left;
+        else if(root->left == NULL) root = root->right;
+        else{
+            node *temp = root->right;
+            while(temp->left != NULL) temp = temp->left;
+            root->val = temp->val;
+            root->right = mydelete(root->right,temp->val);
+            temp = NULL;
+            delete temp;
+        }
+    }
+    
+    if(root == NULL) return NULL;
 
     root->height = max(height(root->left),height(root->right))+1;
-    //cout<<root->height<<endl;
 
-    if(balancefactor(root) > 1){
-        if(root->left and val <= root->left->val)//ll imbalanced
-            root = rightRotate(root);
-        else if(root->right and val >= root->right->val)//rr imbalanced
-            root = leftRotate(root);
-        else if(root->left and val >= root->left->val){//lr imbalanced
-            root->left = leftRotate(root->left);
-            root = rightRotate(root);
-        }
-        else if(root->right and val <= root->right->val){//rl imbalanced
-            root->right = rightRotate(root->right);
-            root = leftRotate(root);
-        }
+    int bf = balanceFactor(root);
+
+    if(bf > 1 and height(root->left->left) >= height(root->left->right)){// ll imbalanced
+        root = rightRotate(root);
+    }
+    else if(bf < -1 and height(root->right->right) >= height(root->right->left)){
+        //rr imbalance
+        root = leftRotate(root);
+    }
+    else if(bf > 1 and height(root->left->left) < height(root->left->right)){
+        //lr imbalance
+        root->left = leftRotate(root->left);
+        root = rightRotate(root);
+    }
+    else if(bf < -1 and height(root->right->right) < height(root->right->left)){
+        //rl imbalance
+        root->right = rightRotate(root->right);
+        root = leftRotate(root);
     }
     return root;
 }
@@ -100,15 +133,20 @@ void preorder(node *root){
 
 int main(){
     node *root = NULL;
+    int ch;
     while(true){
         cout<<"Enter value(-1 to stop): ";
-        int ch;
         cin>>ch;
         if(ch == -1) break;
         root = insert(root,ch);
         //cout<<root->val<<endl;
     }
     cout<<"\nPreorder traversal: ";
+    preorder(root);
+    cout<<endl;
+    cout<<"Enter node to be deleted: ";
+    cin>>ch;
+    root = mydelete(root,ch);
     preorder(root);
     cout<<endl;
     return 0;
