@@ -139,31 +139,30 @@ class Graph{
             clearVisitedVec();
         }
 
-        void DFSRecursive(int strtV,stack<int> &s){
+        void DFSRecursive(int strtV){
+            if(strtV > n) return;
             strtV--;
-            int tmp = -1;
-            if(!visited[strtV]){
-                cout<<strtV+1<<" ";
-                visited[strtV] = 1;
-                s.push(strtV);
-                tmp = strtV;
-            }
-            else if(!s.empty()){
-                tmp = s.top();
-            }
-            if(tmp != -1){
-                vector<int>::iterator itr = vec[tmp].begin();
-                while(itr != vec[tmp].end()){
-                    if(!visited[*itr]){
-                        cout<<*itr+1<<" ";
-                        visited[*itr] = 1;
-                        s.push(*itr);
-                        DFSRecursive(strtV+1,s);
-                    }
-                    itr++;
+            cout<<strtV+1<<" ";
+            visited[strtV] = 1;
+            vector<int>::iterator itr = vec[strtV].begin();
+            while(itr != vec[strtV].end()){
+                if(!visited[*itr])
+                    DFSRecursive(*itr+1);
+                itr++;
+            } 
+        }
+
+        void connectedComponents(){
+            int j=1;
+            queue<int> q;
+            for(int i=0;i<n;i++){
+                if(!visited[i]){
+                    cout<<"Component "<<j++<<": ";
+                    BFSRecursive(i+1,q);
+                    cout<<endl;
                 }
-                if(itr == vec[tmp].end()) s.pop();
             }
+            clearVisitedVec();
         }
 };
 
@@ -178,16 +177,19 @@ int main(){
     int v;
     cin>>v;
     graph.BFS(v);
-    queue<int> q;
-    graph.BFSRecursive(v,q);
+     queue<int> q;
+    /*graph.BFSRecursive(v,q);
     graph.clearVisitedVec();
-    cout<<endl;
+    cout<<endl; */
     cout<<"Enter the vertex from which to start the DFS traversal: ";
     cin>>v;
-    graph.DFS(v);
-    stack<int> s;
+    graph.DFSRecursive(v);
+    graph.clearVisitedVec();
+    /* stack<int> s;
     graph.DFSRecursive(v,s);
     graph.clearVisitedVec();
-    cout<<endl;    
+    cout<<endl; */   
+    cout<<"BFS of connected components:\n"; 
+    graph.connectedComponents();
     return 0;
 }
