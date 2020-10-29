@@ -85,7 +85,7 @@ node* mydelete(node *root,int val){
     else if(root->val < val)
         root->right = mydelete(root->right,val);
     else{
-        if(root->left == NULL and root->right == NULL) return NULL;
+        if(root->left == NULL and root->right == NULL) root = NULL;
         else if(root->right == NULL) root = root->left;
         else if(root->left == NULL) root = root->right;
         else{
