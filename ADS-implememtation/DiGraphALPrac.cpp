@@ -6,7 +6,7 @@ using namespace std;
 
 class DiGraph{
     private:
-        vector<vector<int>> vec;
+        vector<vector<int>> vec,v;
         vector<int> visited;
         int n,e;
     public:
@@ -14,6 +14,7 @@ class DiGraph{
             this->n = n;
             this->e = e;
             vec.reserve(n);
+            v.reserve(n);//for transpose needed for kosaraju's algo
             visited.reserve(n);
             clearVisitedVec();
         }
@@ -35,9 +36,9 @@ class DiGraph{
         void showAdjacencyList(){
             vector<int>::iterator itr;
             for(int i=0;i<n;i++){
-                itr = vec[i].begin();
+                itr = v[i].begin();
                 cout<<i+1<<": ";
-                while(itr != vec[i].end()){
+                while(itr != v[i].end()){
                     cout<<*itr+1<<" ";
                     itr++;
                 }
@@ -83,37 +84,68 @@ class DiGraph{
             clearVisitedVec();
         }
 
-        void DFSHelper(int strtV){
+        //following DFS functions are modeled as per the need of the kosaraju algo
+        void DFSHelper(vector<vector<int>> &vec,int strtV,stack<int> &s,bool op){
             vector<int>::iterator itr = vec[strtV].begin();
             while(itr != vec[strtV].end()){
                 if(!visited[*itr]){
                     visited[*itr] = 1;
-                    cout<<*itr+1<<" ";
-                    DFSHelper(*itr);
+                    if(op) cout<<*itr+1<<" ";
+                    DFSHelper(vec,*itr,s,op);
                 }
                 itr++;
             }
+            if(itr == vec[strtV].end()) s.push(strtV);
         }
 
-        void DFS(int strtV){
+        void DFS(vector<vector<int>> &vec,int strtV,stack<int> &s,bool op){
             if(strtV > n) return;
             strtV--;
             visited[strtV] = 1;
-            cout<<strtV+1<<" ";
-            DFSHelper(strtV);
+            //cout<<strtV+1<<" ";
+            DFSHelper(vec,strtV,s,op);
             for(int i=0;i<n;i++){
                 if(!visited[i]){
                     visited[i] = 1;
-                    cout<<i+1<<" ";
-                    DFSHelper(i);
+                    //cout<<i+1<<" ";
+                    DFSHelper(vec,i,s,op);
                 }
             }
             cout<<endl;
             clearVisitedVec();
         }
 
-        void SCCKojaraju(){
-            
+        void transpose(){
+            vector<int>::iterator itr;
+            for(int i=0;i<n;i++){
+                itr = vec[i].begin();
+                while(itr != vec[i].end()){
+                    v[*itr].push_back(i);
+                    itr++;
+                }
+            }
+        }
+
+        void SCCKosaraju(){
+            stack<int> s;
+            DFS(vec,1,s,false);
+            transpose();
+            stack<int> dum;
+            int i = 1;
+            while(!s.empty()){
+                int tmp = s.top();
+                if(!visited[tmp]){
+                    cout<<"Component "<<i<<": ";
+                    visited[tmp] = 1;
+                    cout<<tmp+1<<" ";
+                    DFSHelper(v,tmp,dum,true);
+                    s.pop();
+                    i++;
+                    cout<<endl;
+                }
+                else s.pop();
+            }
+            clearVisitedVec();
         }
 };
 
@@ -128,8 +160,6 @@ int main(){
     int v;
     cin>>v;
     g.BFS(v);
-    cout<<"Enter start vertex for DFS traversal: ";
-    cin>>v;
-    g.DFS(v);
+    g.SCCKosaraju();
     return 0;
 }
