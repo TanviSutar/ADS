@@ -49,35 +49,6 @@ class Graph{
             }
         }
 
-        int getColor(int n,vector<int> color){
-            int c = -1;
-            vector<int>::iterator itr = vec[n].begin();
-            while(itr != vec[n].end()){
-                if(color[*itr] != -1){
-                    c = color[*itr];
-                    break;
-                }
-                itr++;
-            }
-            if(itr == vec[n].end()) return RED;
-            while(itr != vec[n].end()){
-                if(color[*itr] != -1 and color[*itr] != c) return ERROR;
-                itr++;
-            }
-            if(c == RED) return BLACK;
-            else return RED;
-        }
-
-        bool color(){
-            vector<int> color(n,-1);
-            for(int i=0;i<n;i++){
-                int tmp = getColor(i,color);
-                if(tmp == ERROR) return false;
-                color[i]=tmp;
-            }
-            return true;
-        }
-
         bool colorGraph(){
             vector<int>::iterator itr;
             vector<int> color(n,-1);
