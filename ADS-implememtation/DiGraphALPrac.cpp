@@ -127,6 +127,7 @@ class DiGraph{
         }
 
         void SCCKosaraju(){
+            cout<<"\nStrongly connected components of the digraph are:";
             stack<int> s;
             DFS(vec,1,s,false);
             transpose();
