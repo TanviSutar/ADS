@@ -30,7 +30,7 @@ class LinkedList{
             tmp = NULL;
             delete tmp;
         }
-        void segregate(){
+        void segregate(){//appending all odd number nodes at the end of the linked list as they are encountered
             if(head == NULL) return;
             Node *tmp = head;
             while(tmp->next != NULL) tmp = tmp->next;
@@ -38,7 +38,6 @@ class LinkedList{
             int count = 0;
             while(t != ptr and t != NULL){
                 if(t->data&1){
-                    cout<<t->data<<endl;
                     if(t == head) head = head->next;
                     else prev->next = t->next;
                     tmp->next = t;
